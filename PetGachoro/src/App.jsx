@@ -25,8 +25,6 @@ export default function PetGachorro() {
               const response = await fetch('https://random.dog/woof.json');
               const data = await response.json();
               
-              // Nota: Adapte o 'data.url' dependendo do formato real do JSON que essa API retorna.
-              // Se a API retornar { message: "link_da_imagem" }, troque para data.message
               const imageUrl = data.url || data.message || data.image || 'https://via.placeholder.com/300?text=Cachorrinho';
               
               return { ...dog, image: imageUrl };
