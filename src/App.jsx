@@ -13,25 +13,41 @@ const mockDogs = [
 export default function PetGachorro() {
   const [dogs, setDogs] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const fetchDogImages = async () => {
       try {
-        // Mapeia nossos cachorros e busca uma imagem para cada um
+        
         const dogsWithImages = await Promise.all(
           mockDogs.map(async (dog) => {
             try {
-              // Fazendo a chamada para a API que você solicitou
-              const response = await fetch('https://random.dog/woof.json');
-              const data = await response.json();
-              
-              const imageUrl = data.url || data.message || data.image || 'https://via.placeholder.com/300?text=Cachorrinho';
-              
+              var requests = 0;              
+              var fileFormat = "";
+              let imageUrl = "";
+              do {
+                const response = await fetch('https://random.dog/woof.json');
+                const data = await response.json();
+                
+                imageUrl = data.url;
+                fileFormat = imageUrl.toLowerCase();
+                
+                requests++;
+                
+                var isImage = fileFormat.endsWith('.jpg') || 
+                              fileFormat.endsWith('.png') || 
+                              fileFormat.endsWith('.jpeg');
+
+              } while (!isImage && requests < 10);
+
+              if (requests >= 10 && !isImage) {
+                throw new Error(`Timeout: No JPG, JPEG or PNG found within 10 requests`);
+              }
+
               return { ...dog, image: imageUrl };
             } catch (err) {
+
               console.error(`Erro ao carregar imagem do ${dog.name}:`, err);
-              // Imagem de fallback caso a requisição falhe
-              return { ...dog, image: 'https://via.placeholder.com/300?text=Sem+Foto' };
+              return { ...dog, image: 'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg' };
             }
           })
         );
